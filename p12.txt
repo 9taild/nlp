@@ -1,0 +1,114 @@
+#12)
+
+!pip install nltk numpy tensorflow
+############################
+
+#Load and Preprocess the Data
+
+import json
+import numpy as np
+import random
+import nltk
+from nltk.stem import WordNetLemmatizer
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import Dense, Dropout, LSTM, Embedding, SpatialDropout1D
+from tensorflow.keras.preprocessing.text import Tokenizer
+from tensorflow.keras.preprocessing.sequence import pad_sequences
+
+nltk.download('punkt')
+nltk.download('punkt_tab')
+nltk.download('wordnet')
+
+lemmatizer = WordNetLemmatizer()
+
+# Load dataset
+with open('/content/intents.json') as file:
+    data = json.load(file)
+
+# Preparing data
+sentences = []
+labels = []
+classes = []
+documents = []
+
+for intent in data['intents']:
+    for pattern in intent['patterns']:
+        # Tokenize each word
+        words = nltk.word_tokenize(pattern)
+        sentences.append(pattern)
+        documents.append((words, intent['tag']))
+        labels.append(intent['tag'])
+
+        if intent['tag'] not in classes:
+            classes.append(intent['tag'])
+
+# Lemmatize and clean
+def clean_text(text):
+    tokens = nltk.word_tokenize(text)
+    return ' '.join([lemmatizer.lemmatize(word.lower()) for word in tokens])
+
+sentences = [clean_text(s) for s in sentences]
+
+
+#########################################
+
+#Tokenization and Encoding
+
+tokenizer = Tokenizer(num_words=2000, oov_token="<OOV>")
+tokenizer.fit_on_texts(sentences)
+word_index = tokenizer.word_index
+
+sequences = tokenizer.texts_to_sequences(sentences)
+X = pad_sequences(sequences)
+
+# Convert labels to numeric
+from sklearn.preprocessing import LabelEncoder
+label_encoder = LabelEncoder()
+y = label_encoder.fit_transform(labels)
+
+###########
+#Build and Train the LSTM Model
+
+model = Sequential()
+model.add(Embedding(input_dim=2000, output_dim=128, input_length=X.shape[1]))
+model.add(SpatialDropout1D(0.3))
+model.add(LSTM(128, dropout=0.3, recurrent_dropout=0.3))
+model.add(Dense(128, activation='relu'))
+model.add(Dropout(0.3))
+model.add(Dense(len(classes), activation='softmax'))
+
+model.compile(loss='sparse_categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
+
+# Train the model
+model.fit(X, y, epochs=200, batch_size=5, verbose=1)
+
+#################################################
+#Create a Response Function
+
+def predict_class(text):
+    text = clean_text(text)
+    seq = tokenizer.texts_to_sequences([text])
+    padded = pad_sequences(seq, maxlen=X.shape[1])
+    pred = model.predict(padded)[0]
+    tag = label_encoder.inverse_transform([np.argmax(pred)])
+    return tag[0]
+
+def get_response(tag):
+    for intent in data['intents']:
+        if intent['tag'] == tag:
+            return random.choice(intent['responses'])
+
+##############
+#Test the Chatbot
+
+while True:
+    user_input = input("You: ")
+    if user_input.lower() in ["quit", "exit"]:
+        break
+    intent = predict_class(user_input)
+    print("Bot:", get_response(intent))
+
+###############################
+#link=https://drive.google.com/file/d/1iU6Q7N457xuhq9wDOo0i6T33kLflH4su/view
+
+
