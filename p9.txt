@@ -1,0 +1,121 @@
+#9) Consider a scenario of applying NLP in Customer Service. Design and develop 
+an application that demonstrates NLP operations for working with tasks and data like voice calls, 
+chats, Ticket Data, Email Data. Process the data to understand the voice of the Customer (intent 
+mining, Top words, word cloud, classify topics). Identify issues, replace patterns and gain insight into 
+sales chats.
+
+#Practical 9 : Processing Sales Chat 
+import json 
+import pandas as pd 
+import re 
+import nltk 
+import numpy as np 
+from collections import Counter 
+from sklearn.feature_extraction.text import TfidfVectorizer 
+ 
+from wordcloud import WordCloud 
+import matplotlib.pyplot as plt 
+from nltk.corpus import stopwords 
+nltk.download('stopwords') 
+from sklearn.decomposition import LatentDirichletAllocation 
+from sklearn.pipeline import make_pipeline 
+from sklearn.preprocessing import FunctionTransformer 
+from sklearn.metrics import classification_report
+
+##############################
+
+with open('/content/sales_conversations.json','r') as file: 
+  data = json.load(file) 
+ 
+print(data) 
+
+########################
+
+def preprocess(text): 
+  text = text.lower().strip() if text else "" 
+  text = re.sub(r'\d+','', text) 
+  text = re.sub(r'[^\w\s]','',text) 
+  return text 
+ 
+customer_dialogue = [] 
+salesman_dialogue = [] 
+ 
+for conversation in data['data']: 
+  for convo in conversation: 
+    if isinstance(convo,dict): 
+       customer_dialogue.append(preprocess(convo.get('Customer'))) 
+       salesman_dialogue.append(preprocess(convo.get('Salesman'))) 
+ 
+print(customer_dialogue) 
+
+#################
+
+plt.figure(figsize=(10,5)) 
+plt.imshow(word_cloud,interpolation='bilinear') 
+plt.axis('off') 
+plt.show() 
+
+###########################
+
+#important words 
+vectorizer = TfidfVectorizer(max_features=10) 
+tfidf_matrix = vectorizer.fit_transform(cleaned_customer+cleaned_salesman) 
+ 
+features = vectorizer.get_feature_names_out() 
+top_words = np.array(features) 
+print(f"Top words: {top_words}")
+
+##################################
+
+#identify topics 
+lda_model = LatentDirichletAllocation(n_components=3,random_state=42) 
+lda_topic_matrix = lda_model.fit_transform(tfidf_matrix) 
+ 
+for index,topic in enumerate(lda_model.components_): 
+   print(f"Topic#{index}:") 
+   print({features[i] for i in topic.argsort()[-1:]}) #topic.argsort()[-10:] --->change the number, or change the    
+n_components to get the desired output 
+
+#############################
+
+# identifying customer intent 
+def classify_intent(text): 
+ if 'purchase' in text or 'buy' in text: 
+   return 'Product Inquiry' 
+  elif 'help' in text or 'support' in text: 
+  return 'Customer Support' 
+  elif 'problem' in text or 'issue' in text: 
+  return 'Issue Reporting' 
+  else: 
+  return 'General Inquiry' 
+customer_intent = [classify_intent(text) for text in cleaned_customer] 
+print(customer_intent) 
+
+#############################
+
+# Gaining insights (sentiment analysis) 
+from textblob import TextBlob 
+def get_sentiment(text): 
+  analysis = TextBlob(text) 
+  return analysis.sentiment.polarity 
+customer_sentiments = [get_sentiment(text) for text in cleaned_customer] 
+sentiment_labels = ['Positive' if sentiment>0 else 'Neagtive' if sentiment <0 else 'Neutral' for sentiment in 
+customer_sentiments] 
+sentiment_counts = Counter(sentiment_labels) 
+print(f"Sentiment Distribution: {sentiment_counts}") 
+
+##############################
+
+#Save results into a csv for further processing 
+df = pd.DataFrame({ 
+ 'Customer Chat':customer_dialogue, 
+    'Salesman Chat':salesman_dialogue, 
+    'Intent':customer_intent,
+ 
+    'Sentiment':sentiment_labels 
+}) 
+df.to_csv('sales_chat_analysis.csv', index=False) 
+print('Sales chat analysis saved successfully to the file')
+
+###############################
+

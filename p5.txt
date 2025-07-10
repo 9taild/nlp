@@ -1,0 +1,28 @@
+#5) Write a program to implement syntactic parsing of a given text. 
+
+pip install nltk benepar
+
+import nltk, benepar 
+ 
+nltk.download('punkt') 
+nltk.download('punkt_tab') 
+benepar.download('benepar_en3')
+
+###########################
+
+parser = benepar.Parser('benepar_en3') 
+###############################
+sentence ="The quick brown fox jumps over lazy dog" 
+tokens = nltk.word_tokenize(sentence) 
+
+tree = parser.parse(tokens) 
+
+#########################
+
+print(tree) 
+
+##########################
+
+tree.pretty_print() 
+
+########################

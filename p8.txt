@@ -1,0 +1,42 @@
+#8) Write a program to Implement Text Summarization for the given sample text. 
+
+#Practical 8 : Text Summarization 
+#Write a program to Implement Text Summarization for the given sample text 
+#Abstractive Summary Of The Text 
+ 
+!pip install transformers
+############################
+
+!pip install sentencepiece
+#############
+
+from transformers import pipeline 
+ 
+# User input function 
+def get_input(): 
+    print("Enter the text to summarize (end with blank line):") 
+    lines = [] 
+    while True: 
+        line = input() 
+        if line == "":
+            break 
+        lines.append(line) 
+    return "\n".join(lines) 
+ 
+# Abstractive summarization function 
+def abstractive_summary(text): 
+    print("\n Abstractive Summary:\n") 
+    try: 
+        summarizer = pipeline("summarization", model="t5-small", tokenizer="t5-small") 
+        input_text = "summarize: " + text.strip().replace("\n", " ") 
+        summary = summarizer(input_text, max_length=100, min_length=30, do_sample=False) 
+        print("- " + summary[0]['summary_text']) 
+    except Exception as e: 
+        print(f"Error: {e}") 
+ 
+# Run 
+text = get_input() 
+abstractive_summary(text) 
+
+################################
+

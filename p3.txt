@@ -1,0 +1,119 @@
+## Write a program to implement a trigram model. 
+
+# Understanding N-grams 
+data = "In NLP, n-grams are contiguous sequences of \"n\" items (like words, characters, or symbols) from a 
+text. They are fundamental for analyzing and predicting language patterns, often used in tasks like text 
+prediction, language modeling, and text mining. " 
+ 
+data
+
+import nltk 
+from collections import defaultdict, Counter 
+ 
+nltk.download('punkt') 
+nltk.download('punkt_tab') 
+
+###########################
+
+def preprocess(text): 
+  tokens = nltk.word_tokenize(text.lower()) 
+  tokens = [word for word in tokens if word.isalnum()] 
+
+  return tokens 
+ 
+def fit(text): 
+  tokens = preprocess(text) 
+  global word_freq 
+  word_freq = Counter() 
+  word_freq.update(tokens) 
+  print("Word Frequencies") 
+  for word, freq in word_freq.items(): 
+    print(f"{word}:{freq}") 
+ 
+def predict(freq): 
+  most_common = word_freq.most_common(freq) 
+  return most_common 
+ 
+fit(data)
+
+##########################
+
+print("Top 3 predicted words based on frequency") 
+pred = predict(5) 
+print(pred) 
+
+###############
+
+# Write a program to Implement a tri-gram model: 
+! pip install NGram 
+######################
+
+from ngram import NGram 
+ 
+# Sample text data 
+data = """Generating random paragraphs can be an excellent way for writers to get their creative flow going at 
+the beginning of the day. 
+The writer has no idea what topic the random paragraph will be about when it appears. 
+This forces the writer to use creativity to complete one of three common writing challenges. 
+The writer can use the paragraph as the first one of a short story and build upon it. 
+A second option is to use the random paragraph somewhere in a short story they create. 
+The third option is to have the random paragraph be the ending paragraph in a short story. 
+No matter which of these challenges is undertaken, the writer is forced to use creativity to incorporate the 
+paragraph into their writing.""" 
+ 
+# Preprocessing: convert to lowercase and split into words 
+tokens = data.lower().split() 
+ 
+# Create trigram model
+
+trigram_model = NGram(tokens, n=3) 
+ 
+# Query example: Find closest matches to a given trigram 
+matches = trigram_model.search('random paragraph be', 5) 
+print("Top 5 matches to 'random paragraph be':") 
+for match in matches: 
+    print(match) 
+ 
+# Display some trigram entries 
+print("\nSample trigrams from the model:") 
+for i, entry in enumerate(trigram_model._grams): 
+    if i > 5: break 
+    print(entry)
+
+####################################
+
+import nltk 
+from nltk.util import ngrams 
+ 
+# Download tokenizer model 
+nltk.download('punkt') 
+nltk.download('punkt_tab') 
+
+######################
+
+# Sample data 
+data = """Generating random paragraphs can be an excellent way for writers to get their creative flow going at 
+the beginning of the day. 
+The writer has no idea what topic the random paragraph will be about when it appears. 
+This forces the writer to use creativity to complete one of three common writing challenges. 
+The writer can use the paragraph as the first one of a short story and build upon it. 
+A second option is to use the random paragraph somewhere in a short story they create. 
+The third option is to have the random paragraph be the ending paragraph in a short story. 
+No matter which of these challenges is undertaken, the writer is forced to use creativity to incorporate the 
+paragraph into their writing.""" 
+ 
+# Step 1: Tokenize text into words 
+tokens = nltk.word_tokenize(data.lower()) 
+ 
+# Step 2: Extract trigrams 
+trigram_list = list(ngrams(tokens, 3)) 
+ 
+# Step 3: Print trigrams 
+print("Trigrams:\n") 
+for trigram in trigram_list: 
+    print(trigram)
+
+############################
+
+
+

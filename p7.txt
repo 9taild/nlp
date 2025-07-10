@@ -1,0 +1,47 @@
+#7)Write a program to Implement Named Entity Recognition (NER).
+
+#Practical 7 : Understanding Named entity recognition (NER) 
+pip install flair
+
+############
+
+from flair.models import SequenceTagger 
+from flair.data import Sentence 
+
+def get_user_input(): 
+  user_input = input("Please enter some text: ") 
+  return user_input 
+ 
+def named_entities(text): 
+  tagger = SequenceTagger.load("ner") 
+  sentence = Sentence(text) 
+  tagger.predict(sentence) 
+  print("\n Named Entities: \n") 
+  for entity in sentence.get_spans('ner'): 
+    print(f"- {entity.text} ({entity.tag})") 
+ 
+text = get_user_input() 
+named_entities(text) 
+
+######################
+
+#ORG  Organization 
+# LOC Location 
+# MISC  Miscellaneous entities 
+ 
+from flair.nn import Classifier 
+ 
+sentence = Sentence("Behavioral abnormalities in the Fmr1 KO2 Mouse Model of Fragile X Syndrome.")
+
+tagger = Classifier.load("bioner").
+
+#########################
+
+tagger.predict(sentence) 
+ 
+print(sentence) 
+
+###############################
+
+
+

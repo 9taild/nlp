@@ -1,0 +1,72 @@
+#4)Write a program to implement POS Tagging using HMM & Neural Model. 
+
+# Understanding POS Tagging (HMM) 
+import numpy as np 
+
+from hmmlearn import hmm 
+states =["DT","JJ","NN","VB","IN"] 
+observations = ["The", "quick", "brown", "fox", "jumps"] 
+ 
+word_map = {word:i for i, word in enumerate(observations)} 
+print(word_map)
+
+#state_map = {state:i for i, state in enumerate(states)} 
+#print(state_map) 
+ 
+transition_matrix = np.array([ 
+    [0.3, 0.2, 0.2, 0.2, 0.1], 
+    [0.2, 0.3, 0.2, 0.1, 0.2], 
+    [0.1, 0.2, 0.4, 0.1, 0.2],
+    [0.1, 0.2, 0.2, 0.3, 0.2], 
+    [0.2, 0.2, 0.2, 0.1, 0.3] 
+])
+
+emission_matrix = np.array([ 
+    [0.2, 0.2, 0.1, 0.1, 0.1], 
+    [0.1, 0.2, 0.1, 0.1, 0.1], 
+    [0.1, 0.1, 0.3, 0.1, 0.1], 
+    [0.1, 0.1, 0.1, 0.2, 0.1], 
+    [0.1, 0.1, 0.1, 0.1, 0.2] 
+]) 
+ 
+model = hmm.MultinomialHMM(n_components=len(states)) 
+
+###################################################
+
+model.startprob_ = np.array([0.2,0.2,0.2,0.2,0.2]) 
+model.transmat_ = transition_matrix 
+model.emissionprob_ = emission_matrix 
+ 
+word_map = {word: i for i, word in enumerate(observations)} 
+print(word_map) 
+
+observations_encoded = [word_map[word] for word in observations] 
+observations_encoded = np.array(observations_encoded).reshape(-1,1) 
+print(observations_encoded) 
+
+#train_observation =np.array([word_map[word] for word in observations]).reshape(-1,1) 
+#train_state = [[state_map['DT'],state_map['JJ'],state_map['NN'],state_map['VB'],state_map['IN']]] 
+ 
+model.fit(observations_encoded) 
+
+predicted_states = model.predict(observations_encoded) 
+predicted_tags = [states[state_idx]for state_idx in predicted_states] 
+ 
+for word, tag in zip(observations, predicted_tags): 
+  print(f"word: {word}, Predicted POS : {tag}")
+
+
+
+###################################
+################################
+#Using NN: 
+
+#Understanding POS Tagging (NN) 
+import spacy 
+model = spacy.load("en_core_web_sm") 
+sentence = "the quick brown fox jumps over the lazy dog" 
+processing = model(sentence) 
+ 
+for token in processing: 
+  print(f"{token.text:10} -> {token.pos_}") 
+

@@ -1,0 +1,95 @@
+#2) write a program to implement stemming and lemmatization. 
+
+# Understanding Stemming & Lemmatization 
+ 
+data = {'messages': [ 
+    "The cats are playing in the garden.", 
+    "He is running quickly to catch the bus.", 
+    "The boys are enjoying their game.", 
+    "She was reading a book.", 
+    "I love to eat apples and bananas." 
+]} 
+ 
+data= {'messages': [ 
+    "The cats are playing in the garden." , 
+    "he is running quickly to catch the bus." , 
+    "The boys are enjoying their game." , 
+    "she was reading a book."  , 
+    "i love to eat apples and bananas." 
+]} 
+ 
+import pandas as pd 
+import nltk 
+from nltk.tokenize import word_tokenize 
+from nltk.corpus import stopwords 
+from nltk.stem import PorterStemmer 
+
+import string 
+ 
+nltk.download('punkt') 
+nltk.download('stopwords') 
+nltk.download('punkt_tab') 
+
+#########################
+
+df = pd.DataFrame(data) 
+stemmer = PorterStemmer() 
+stop_words = set(stopwords.words('english')) 
+ 
+def preprocessor (text): 
+    tokens = word_tokenize(text) 
+    tokens = [word for word in tokens if word.lower() not in stop_words] 
+    tokens = [word.lower() for word in tokens if word.isalnum() ] 
+    tokens = [stemmer.stem(word) for word in tokens] 
+    return ' '.join(tokens) 
+df['processed'] = df ['messages'].apply(preprocessor) 
+print(df[['messages' , "processed"]]) 
+print("\n")
+
+#####################
+
+##Lemmitization: 
+ 
+data = {'messages': [ 
+    "The cats are playing in the garden." , 
+    "he is running quickly to catch the bus." , 
+    "The boys are enjoying their game." , 
+    "she was reading a book."  , 
+    "i love to eat apples and bananas." 
+]} 
+ 
+import pandas as pd 
+import nltk 
+from nltk.tokenize import word_tokenize 
+from nltk.corpus import stopwords 
+#from nltk.stem import Porterstemmer 
+from nltk.stem import WordNetLemmatizer 
+import string 
+ 
+nltk.download('punkt') 
+nltk.download('stopwords') 
+nltk.download('punkt_tab') 
+nltk.download('wordnet') 
+
+###################
+
+df = pd.DataFrame(data) 
+stemmer = PorterStemmer() 
+lemmatizer = WordNetLemmatizer() 
+stop_words = set(stopwords.words('english')) 
+ 
+def preprocessor(text) : 
+  tokens = word_tokenize(text) 
+  tokens = [word for word in tokens if word.lower() not in stop_words] 
+  tokens = [word.lower() for word in tokens if word.isalnum()] 
+  tokens = [stemmer.stem(word) for word in tokens] 
+  tokens = [lemmatizer.lemmatize(word) for word in tokens] 
+  tokens=[word[:-3] if word[-3:] == 'ing' else word for word in tokens] 
+  return ' '.join(tokens) 
+ 
+df['processed'] = df['messages'].apply(preprocessor) 
+ 
+print(df[['messages', "processed"]]) 
+print("\n") 
+
+###########################

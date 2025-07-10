@@ -1,0 +1,70 @@
+#1)Write a program to implement sentence segmentation and word tokenization.
+### Data Preprocessing, understanding data
+# Data Preprocessing, Understanding data 
+  array_data = ["text","Preprocessing","in","Python","This","is","Practical","one"] 
+for item in array_data: 
+ if item != "in" and item != "is": 
+   print(item)
+
+with open("/content/SMSSpamCollection (1).bin","r") as file: 
+  file_data = file.readline() 
+print(file_data) 
+
+import csv 
+with open("/content/TestLarge (1).csv", mode='r') as csv_file: 
+  csv_read = csv.reader(csv_file) 
+  headers = next(csv_read) 
+  csv_data = list(csv_read) 
+
+for row in csv_data: 
+   print(row) 
+
+import pandas as pd 
+data = pd.read_csv("/content/TestLarge (1).csv") 
+print(data)
+
+print(data["Sentiment"][:5]) #First 5
+
+print(data["Sentiment"].head(4))
+
+print(data["Sentiment"].tail(4)) 
+
+import nltk 
+nltk.download('punkt') 
+nltk.download('punkt_tab')
+
+corpus = "Natural Language Processing (NLP) is a subfield of computer science, artificial intelligence, 
+information engineering, and human-computer interaction. This field focuses on how to program computers to 
+process and analyze large amounts of natural language data. It is difficult to perform as the process of reading 
+and understanding languages is far more complex than it seems at first glance. Tokenization is a foundation step 
+in NLP pipeline that shapes the entire workflow." 
+
+input_text = "Hello strudent's ! i am nayan here , came late to class today. cause i had taffic problem sir" 
+
+### Segmentation 
+def segmentation(text): 
+  segments=[nltk.sent_tokenize(text) for seg in text] 
+  return segments 
+print(segmentation(corpus)) 
+
+print(nltk.sent_tokenize(corpus)) 
+
+print("segments") 
+for seg in segmentation(corpus): 
+  print(seg) 
+
+Word Tokenization 
+def segment_and_tokenize(text): 
+  sentences = nltk.sent_tokenize(text)#segmentation 
+  tokenize = [nltk.word_tokenize(sentence) for sentence in sentences] #word tokennizeon 
+  return sentences,tokenize 
+
+sentence_segments,word_tokenize = segment_and_tokenize(input_text)
+
+print("sentence segments") 
+for sent in sentence_segments: 
+  print(sent) 
+
+print("word_tokens") 
+for token in word_tokenize: 
+ print(token)

@@ -1,0 +1,90 @@
+# Practical 10 : Sentiment Analysis & Emotion Mining
+---------
+import nltk
+---------
+nltk.download('vader_lexicon')
+---------
+from nltk.sentiment import SentimentIntensityAnalyzer
+from collections import Counter
+---------
+nltk.download('punkt')
+nltk.download('punkt_tab')
+----------
+reviews = [
+    "I love this product! It works wonderfully.",
+    "The product is terrible. I hate it.",
+    "It's okay, but could be better.",
+    "What an amazing experience! Will buy again.",
+    "Worst purchase ever. Don't buy it!."
+]
+-----------
+# Sentiment Analysis
+def analyze_sentiment(reviews):
+  sentiment = SentimentIntensityAnalyzer()
+  sentiments =[]
+  for review in reviews:
+    sentiment_score = sentiment.polarity_scores(review)
+    print
+    if sentiment_score['compound'] >= 0.05:
+      sentiments.append("positive")
+    elif sentiment_score['compound'] <= -0.05:
+      sentiments.append("negative")
+    else:
+      sentiments.append("Neutral")
+  return sentiments
+----------
+result = analyze_sentiment(reviews)
+print(result)
+-----------
+emotion_keywords = {
+    'happy': ['love', 'amazing', 'wonderful', 'great', 'excited', 'joy'],
+    'sad': ['hate', 'terrible', 'disappointed', 'sad', 'worst'],
+    'angry': ['mad', 'furious', 'irritated', 'rage', 'angry'],
+    'surprised': ['surprised', 'shocked', 'unexpected', 'astonishing'],
+    'neutral': ['okay','fine','average','neutral']
+}
+-------------
+def emotion_mining(revision):
+  emotions =[]
+  for review in reviews:
+    review_lower = review.lower()
+    detected_emotions =[]
+    for key,keywords in emotion_keywords.items():
+      if any(keyword in review_lower for keyword in keywords):
+        detected_emotions.append(key)
+    if not detected_emotions:
+        detected_emotions.append('neutral')
+    emotions.append(detected_emotions)
+  return emotions
+----------------
+emotions_res = emotion_mining(reviews)
+-----------------
+for i,review in enumerate(reviews):
+  print(f"Review: {review}")
+  print(f"Sentiment: {result[i]}")
+  print(f"Detected Emotions: {''.join(emotions_res[i])}")
+  print('-'*50)
+-----------------------
+pip install flair
+------------------
+from flair.data import Sentence
+from flair.models import TextClassifier
+------------------
+sentence = Sentence('I love Mumbai and Delhi')
+-------------------
+tagger = TextClassifier.load('sentiment')
+-----------------
+tagger.predict(sentence)
+print(sentence)
+-----------------
+pip install Transformers
+-----------------
+pip install torch
+-----------------
+from transformers import pipeline
+--------------------
+emotion_classifier = pipeline("text-classification", model ="j-hartmann/emotion-english-distilroberta-base")
+------------------------
+print(emotion_classifier("I feel excited and thrilled about the new opportunity"))
+--------------------
+print(emotion_classifier(reviews))
